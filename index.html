@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindWell - Mental Wellness Chatbot</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #818cf8;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --info: #0ea5e9;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+        
+        .chat-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+        }
+        
+        .message.bot .message-content {
+            background: #f1f5f9;
+            color: var(--dark);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message.user .message-content {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .message.bot .message-avatar {
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .message.user .message-avatar {
+            background: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .chat-input-container {
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            width: fit-content;
+            margin-bottom: 15px;
+        }
+        
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .footer p {
+            color: #64748b;
+            margin: 0;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .quick-action-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .chat-container {
+                height: 80vh;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1><i class="fas fa-brain"></i> MindWell</h1>
+            <p>Your personal mental wellness companion. I'm here to listen, support, and guide you through life's challenges.</p>
+        </header>
+        
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <img src="https://picsum.photos/seed/wellness/100/100.jpg" alt="Chatbot Avatar">
+                <div>
+                    <h3>Wellness Assistant</h3>
+                    <div class="chat-status">
+                        <span class="status-dot"></span>
+                        <span>Online - Ready to help</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        Hello! I'm your mental wellness assistant. How are you feeling today? 😊
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type your message here..." autocomplete="off">
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendQuickMessage('I feel anxious')">I feel anxious</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Feeling stressed')">Feeling stressed</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Need motivation')">Need motivation</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Can\'t sleep')">Can't sleep</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Section -->
+        <footer class="footer">
+            <h4>Project Details</h4>
+            <p><strong>Name:</strong> Enollmer Nollmer | <strong>Enrollment:</strong> EN2024CS001 | <strong>Batch:</strong> CS-2024</p>
+            <p class="mt-2">© 2024 MindWell - Mental Wellness Chatbot. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Chat functionality
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // Bot responses
+        const botResponses = {
+            anxiety: [
+                "I understand anxiety can be overwhelming. Try taking deep breaths - inhale for 4 counts, hold for 4, exhale for 6. This can help calm your nervous system.",
+                "Anxiety is your body's way of protecting you. Let's try a grounding exercise: Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste.",
+                "Remember, anxiety is temporary. Focus on this present moment. What's one small thing you can do right now to feel better?"
+            ],
+            stress: [
+                "Stress is a natural response to challenges. Let's identify what's causing your stress. Sometimes just naming it can reduce its power.",
+                "Try the 5-4-3-2-1 grounding technique: Notice 5 things you see, 4 things you can touch, 3 things you hear, 2 things you smell, and 1 thing you taste.",
+                "Have you tried progressive muscle relaxation? Tense and release each muscle group from your toes to your head. It can release physical tension."
+            ],
+            motivation: [
+                "Motivation often comes after starting, not before. What's the smallest step you can take right now toward your goal?",
+                "Remember your 'why'. What's the deeper reason behind what you want to achieve? Connecting to your purpose can reignite motivation.",
+                "Break your goal into tiny, manageable tasks. Celebrate each small victory - progress builds momentum!"
+            ],
+            sleep: [
+                "Poor sleep can affect everything. Try establishing a relaxing bedtime routine: dim lights, avoid screens, and try reading or gentle stretching.",
+                "Create a sleep-conducive environment: cool, dark, and quiet. Consider white noise or calming sounds if helpful.",
+                "If you can't sleep, get up and do something relaxing until you feel sleepy. Lying in bed frustrated can make it worse."
+            ],
+            default: [
+                "I'm here to support you. Could you tell me more about what's on your mind?",
+                "It's brave of you to reach out. Remember, it's okay to not be okay sometimes.",
+                "I'm listening. Take your time to share what you're comfortable with.",
+                "Your feelings are valid. Would you like to talk about what's been happening lately?",
+                "I'm here for you. Sometimes just expressing our thoughts can help us feel lighter."
+            ]
+        };
+        
+        // Send message function
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+            
+            // Simulate bot thinking
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                const response = getBotResponse(message);
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+        
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = sender === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Get bot response based on message
+        function getBotResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('anxious') || lowerMessage.includes('anxiety')) {
+                return getRandomResponse(botResponses.anxiety);
+            } else if (lowerMessage.includes('stress') || lowerMessage.includes('stressed')) {
+                return getRandomResponse(botResponses.stress);
+            } else if (lowerMessage.includes('motivation') || lowerMessage.includes('motivate')) {
+                return getRandomResponse(botResponses.motivation);
+            } else if (lowerMessage.includes('sleep') || lowerMessage.includes('insomnia')) {
+                return getRandomResponse(botResponses.sleep);
+            } else {
+                return getRandomResponse(botResponses.default);
+            }
+        }
+        
+        // Get random response from array
+        function getRandomResponse(responses) {
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        // Quick action buttons
+        function sendQuickMessage(text) {
+            messageInput.value = text;
+            sendMessage();
+        }
+        
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Initial greeting animation
+        window.addEventListener('load', () => {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach((msg, index) => {
+                msg.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>
